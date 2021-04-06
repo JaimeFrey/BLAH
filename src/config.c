@@ -143,7 +143,6 @@ config_read_cmd(const char *ipath, const char *set_command_format)
   if ((install_location = getenv("BLAHPD_LOCATION")) == NULL)
    {
     install_location = getenv("GLITE_LOCATION");
-    if (install_location == NULL) install_location = DEFAULT_GLITE_LOCATION;
    }
 
   if (ipath == NULL)
