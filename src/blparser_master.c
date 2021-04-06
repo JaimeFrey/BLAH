@@ -308,6 +308,7 @@ main(int argc, char *argv[])
 {
 
 	char *blah_location=NULL;
+	char *libexec_location=NULL;
         char *parser_names[3] = {"BLParserPBS", "BLParserLSF", NULL};
 	
 	char *debuglevelpbs=NULL;
@@ -343,22 +344,33 @@ main(int argc, char *argv[])
 	if ((blah_location = getenv("BLAHPD_LOCATION")) == NULL)
 	{
 		blah_location = getenv("GLITE_LOCATION");
-		if (blah_location == NULL) blah_location = DEFAULT_GLITE_LOCATION;
 	}
-	
+
+	if (blah_location == NULL) {
+		libexec_location = strdup(DEFAULT_LIBEXEC_LOCATION);
+	} else {
+		libexec_location = (char *)malloc(strlen(blah_location)+9);
+		sprintf(libexec_location,"%s/libexec",blah_location);
+	}
+
 	config_file = getenv("BLPARSER_CONFIG_LOCATION");
 	if (config_file == NULL){
- 		config_file = (char *)malloc(strlen(CONFIG_FILE_PARSER)+strlen(blah_location)+6);
-		if(config_file == NULL){
-			fprintf(stderr, "Out of memory\n");
-			exit(MALLOC_ERROR);
-		}
-		sprintf(config_file,"%s/etc/%s",blah_location,CONFIG_FILE_PARSER);
-	
-		if(access(config_file,R_OK)){
-			/* Last resort: default location. */
+		if (blah_location == NULL ) {
+			config_file = (char *)malloc(strlen(CONFIG_FILE_PARSER)+6);
 			sprintf(config_file,"/etc/%s",CONFIG_FILE_PARSER);
+		} else {
+			config_file = (char *)malloc(strlen(CONFIG_FILE_PARSER)+strlen(blah_location)+6);
+			if(config_file == NULL){
+				fprintf(stderr, "Out of memory\n");
+				exit(MALLOC_ERROR);
+			}
+			sprintf(config_file,"%s/etc/%s",blah_location,CONFIG_FILE_PARSER);
+
+			if(access(config_file,R_OK)){
+				/* Last resort: default location. */
+				sprintf(config_file,"/etc/%s",CONFIG_FILE_PARSER);
 			
+			}
 		}
 
 	}
@@ -481,14 +493,14 @@ main(int argc, char *argv[])
 				}
 			}
 			
-			s=make_message("%s/libexec/%s",blah_location,parser_names[0]);                
+			s=make_message("%s/%s",libexec_location,parser_names[0]);
 			if(access(s,X_OK)){
 				fprintf(stderr, "%s does not exist or it is not executable\n",s);
 				exit(EXIT_FAILURE);
 			}
 			free(s);
 			
-			parser_pbs[i].exefile = make_message("%s/libexec/%s %s %s %s %s %s",blah_location,parser_names[0],debuglevelpbs,debuglogfilepbs,spooldirpbs,portpbs,creamportpbs);
+			parser_pbs[i].exefile = make_message("%s/%s %s %s %s %s %s",libexec_location,parser_names[0],debuglevelpbs,debuglogfilepbs,spooldirpbs,portpbs,creamportpbs);
 			parser_pbs[i].pidfile = make_message("%s/%s%d.pid",PID_DIR,parser_names[0],i+1);
 
 			if(parser_pbs[i].exefile == NULL || parser_pbs[i].pidfile == NULL){
@@ -591,14 +603,14 @@ main(int argc, char *argv[])
 				}
 			}
 			
-			s=make_message("%s/libexec/%s",blah_location,parser_names[1]);                
+			s=make_message("%s/%s",libexec_location,parser_names[1]);
 			if(access(s,X_OK)){
 				fprintf(stderr, "%s does not exist or it is not executable\n",s);
 				exit(EXIT_FAILURE);
 			}
 			
 			free(s);
-			parser_lsf[i].exefile = make_message("%s/libexec/%s %s %s %s %s %s %s",blah_location,parser_names[1],debuglevellsf,debuglogfilelsf,binpathlsf,confpathlsf,portlsf,creamportlsf);
+			parser_lsf[i].exefile = make_message("%s/%s %s %s %s %s %s %s",libexec_location,parser_names[1],debuglevellsf,debuglogfilelsf,binpathlsf,confpathlsf,portlsf,creamportlsf);
 			parser_lsf[i].pidfile = make_message("%s/%s%d.pid",PID_DIR,parser_names[1],i+1);
 			
 			if(parser_lsf[i].exefile == NULL || parser_lsf[i].pidfile == NULL){

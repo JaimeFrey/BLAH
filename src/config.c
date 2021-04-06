@@ -152,13 +152,21 @@ config_read_cmd(const char *ipath, const char *set_command_format)
     path = getenv("BLAHPD_CONFIG_LOCATION");
     if (path == NULL)
      {
-      path = (char *)malloc(strlen(CONFIG_FILE_BASE)+strlen(install_location)+6);
-      if (path == NULL) return NULL;
-      sprintf(path,"%s/etc/%s",install_location,CONFIG_FILE_BASE);
-      test = fopen(path, "r");
-      /* Last resort if file cannot be read from. */
-      if (test == NULL) sprintf(path,"/etc/%s",CONFIG_FILE_BASE);
-      else fclose(test);
+      if (install_location == NULL)
+       {
+         path = (char *)malloc(strlen(CONFIG_FILE_BASE)+6);
+         sprintf(path,"/etc/%s",CONFIG_FILE_BASE);
+       }
+      else
+       {
+        path = (char *)malloc(strlen(CONFIG_FILE_BASE)+strlen(install_location)+6);
+        if (path == NULL) return NULL;
+        sprintf(path,"%s/etc/%s",install_location,CONFIG_FILE_BASE);
+        test = fopen(path, "r");
+        /* Last resort if file cannot be read from. */
+        if (test == NULL) sprintf(path,"/etc/%s",CONFIG_FILE_BASE);
+        else fclose(test);
+       }
      }
     else
      {
@@ -203,6 +211,10 @@ config_read_cmd(const char *ipath, const char *set_command_format)
   rha->config_path = path;
   rha->list = NULL;
   if (install_location != NULL) rha->install_path = strdup(install_location);
+  /* Allow install_path to be NULL. It's never used, and there's no good
+   * value to use for a native package installation.
+   */
+#if 0
   if (rha->install_path == NULL)
    {
     /* Out of memory */
@@ -210,6 +222,7 @@ config_read_cmd(const char *ipath, const char *set_command_format)
     config_free(rha);
     return NULL;
    }
+#endif
   rha->bin_path = NULL; /* These may be filled out of config file contents. */
   rha->sbin_path = NULL; 
   rha->libexec_path = NULL;
@@ -340,6 +353,10 @@ config_read_cmd(const char *ipath, const char *set_command_format)
    {
     rha->bin_path = strdup(bp->value);
    }
+  else if (install_location == NULL)
+   {
+    rha->bin_path = strdup(DEFAULT_BIN_LOCATION);
+   }
   else
    {
     rha->bin_path = (char *)malloc(strlen(install_location)+5);
@@ -356,6 +373,10 @@ config_read_cmd(const char *ipath, const char *set_command_format)
    {
     rha->sbin_path = strdup(bp->value);
    }
+  else if (install_location == NULL)
+   {
+    rha->sbin_path = strdup(DEFAULT_SBIN_LOCATION);
+   }
   else
    {
     rha->sbin_path = (char *)malloc(strlen(install_location)+6);
@@ -371,6 +392,10 @@ config_read_cmd(const char *ipath, const char *set_command_format)
   if ((bp = config_get("blah_libexec_directory", rha)) != NULL)
    {
     rha->libexec_path = strdup(bp->value);
+   }
+  else if (install_location == NULL)
+   {
+    rha->libexec_path = strdup(DEFAULT_LIBEXEC_LOCATION);
    }
   else
    {

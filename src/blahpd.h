@@ -36,6 +36,9 @@
 
 #define RCSID_VERSION		"$GahpVersion: %s Mar 31 2008 INFN\\ blahpd\\ (%s) $"
 
+#define DEFAULT_BIN_LOCATION "/usr/bin"
+#define DEFAULT_SBIN_LOCATION "/usr/sbin"
+#define DEFAULT_LIBEXEC_LOCATION "/usr/libexec/blahp"
 #define DEFAULT_GLITE_LOCATION "/opt/glite"
 #define DEFAULT_GLEXEC_COMMAND "/opt/glite/sbin/glexec"
 #define DEFAULT_SUDO_COMMAND "/usr/bin/sudo"
