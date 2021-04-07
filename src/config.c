@@ -145,6 +145,11 @@ config_read_cmd(const char *ipath, const char *set_command_format)
     install_location = getenv("GLITE_LOCATION");
    }
 
+  if (install_location != NULL && access(install_location,X_OK) < 0)
+   {
+    install_location = NULL;
+   }
+
   if (ipath == NULL)
    {
     /* Read from default path. */

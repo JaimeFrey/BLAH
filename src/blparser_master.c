@@ -346,6 +346,10 @@ main(int argc, char *argv[])
 		blah_location = getenv("GLITE_LOCATION");
 	}
 
+	if (blah_location != NULL && access(blah_location,X_OK) < 0) {
+		blah_location = NULL;
+	}
+
 	if (blah_location == NULL) {
 		libexec_location = strdup(DEFAULT_LIBEXEC_LOCATION);
 	} else {
