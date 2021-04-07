@@ -37,6 +37,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <regex.h>
+#include <unistd.h>
 
 #include "blahpd.h"
 #include "config.h"
